@@ -2,7 +2,7 @@ OPT ?= -O3
 
 CFLAGS   = -std=gnu11 $(OPT) -Wall -Wextra -Wpedantic -Wstrict-aliasing -static
 
-EXEC=pkru pkru_debug pkru_extensive test
+EXEC=pkru pkru_debug pkru_extensive test_MPK_performance test_RW_performance
 
 all: $(EXEC)
 
@@ -13,4 +13,3 @@ clean:
 	@rm -f $(EXEC)
 
 cleanall: clean
-
