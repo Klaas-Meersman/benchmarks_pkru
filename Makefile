@@ -6,6 +6,8 @@ EXEC=pkru pkru_debug
 
 all: $(EXEC)
 
+%: %.c
+	$(CC) $(CFLAGS) -o $@ $<
 	
 clean: 
 	@rm -f $(EXEC)
