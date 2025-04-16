@@ -5,7 +5,7 @@
 #include <sys/mman.h>
 #include <time.h>
 
-#define ITERATIONS 10000000  // Adjust this to get ~10 seconds on your system
+#define ITERATIONS 1000000  // Adjust this to get ~10 seconds on your system
 
 int main(void) {
     size_t pagesize = getpagesize();

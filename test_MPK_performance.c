@@ -6,7 +6,7 @@
 #include <sys/mman.h>
 #include <time.h>
 
-#define ITERATIONS 10000000  // 100 million
+#define ITERATIONS 1000000  // 100 million
 
 int main(void) {
     int *page1, *page2;
