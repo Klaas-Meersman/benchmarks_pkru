@@ -20,7 +20,8 @@ int main() {
         perror("mprotect");
         exit(1);
     }
-
+    printf("Memory protection changed to read-only.\n");
+    printf("Attempting to write to read-only memory...\n");
     // Attempt to write to the now read-only memory (will cause segmentation fault)
     ((char*)addr)[0] = 'X';
 
