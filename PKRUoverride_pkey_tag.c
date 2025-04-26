@@ -17,10 +17,10 @@ int main(void) {
     if (page1 == MAP_FAILED)
         err(EXIT_FAILURE, "mmap page1");
 
-    printf("Writing initial data to both pages...\n");
+    printf("Writing initial data to page1...\n");
     ((int*)page1)[0] = 1001;
 
-    printf("Allocating two protection keys...\n");
+    printf("Allocating protection key...\n");
     pkey1 = pkey_alloc(0, 0);
     if (pkey1 == -1)
         err(EXIT_FAILURE, "pkey_alloc 1");
@@ -29,7 +29,7 @@ int main(void) {
     uintptr_t tagging_mask = (pkey1 << 56); // Use bit 56 for demonstration
     uintptr_t page1_addr = (uintptr_t)page1;
 
-    printf("Assigning pkey1 to page1, pkey2 to page2...\n");
+    printf("Assigning pkey1 to page...\n");
     status = pkey_mprotect(page1, pagesize, PROT_READ | PROT_WRITE, pkey1);
     if (status == -1)
         err(EXIT_FAILURE, "pkey_mprotect page1");
