@@ -12,7 +12,7 @@ int main(void) {
     int status;
     size_t pagesize = getpagesize();
 
-    printf("Allocating two pages of memory...\n");
+    printf("Allocating a page of memory...\n");
     void *page1 = mmap(NULL, pagesize, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if (page1 == MAP_FAILED)
         err(EXIT_FAILURE, "mmap page1");
