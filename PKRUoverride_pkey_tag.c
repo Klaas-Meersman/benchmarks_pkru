@@ -34,7 +34,7 @@ int main(void) {
     if (status == -1)
         err(EXIT_FAILURE, "pkey_mprotect page1");
 
-    printf("----------------------\n");
+    printf("Test 1.1 ----------------------\n");
     printf("access page1 with memory tag without setting the correct PKRU registers: should succeed with pkruOverride set\n");
     printf("Original: %p\nTagged: %p\n", page1, (void *)(page1_addr | tagging_mask));
 
@@ -45,7 +45,7 @@ int main(void) {
     printf("----------------------\n");
 
 
-    printf("-----------------------\n");
+    printf("Test 1.2 -----------------------\n");
     printf("setting PKRU registers to disable access\n");
     printf("This should have no effect with pkruOverride set as the PKRU registers are ignored.\n");
     printf("Only thing that needs to be correct is the memory tag associated with the pkey of the page.\n");
@@ -59,7 +59,7 @@ int main(void) {
     printf("Succeeded: page1 now contains: %d\n", ((int *)(page1_addr | tagging_mask))[0]);
     printf("----------------------\n");
 
-    printf("-----------------------\n");
+    printf("Test 1.3 -----------------------\n");
     printf("setting PKRU registers to disable write\n");
     printf("This should have no effect with pkruOverride set as the PKRU registers are ignored.\n");
     printf("Only thing that needs to be correct is the memory tag associated with the pkey of the page.\n");
@@ -73,9 +73,9 @@ int main(void) {
     printf("Succeeded: page1 now contains: %d\n", ((int *)(page1_addr | tagging_mask))[0]);
     printf("----------------------\n");
 
-    
 
-    printf("------------------------\n");
+
+    printf("Test 2.1------------------------\n");
     printf("setting PKRU registers to allow access\n");
     status = pkey_set(pkey1, 0); // allow all
     if (status)
