@@ -64,7 +64,8 @@ int main(void) {
     status = pkey_set(pkey1, 0); // allow all
     if (status)
         err(EXIT_FAILURE, "pkey_set 2");
-    printf("Reading page1 without tag (should fail): %d\n", ((int *)(page1_addr))[0]);
+    printf("Reading page1 without tag (should fail):");
+    printf("%d\n", ((int *)(page1_addr))[0]);
     //should not go past here
 
     //cleanup anyways
