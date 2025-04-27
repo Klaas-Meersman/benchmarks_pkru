@@ -55,9 +55,25 @@ int main(void) {
 
     printf("Reading page1 with tag (should succeed): %d\n", ((int *)(page1_addr | tagging_mask))[0]);
     printf("Writing page1 with tag(should succeed)...\n");
-    ((int *)(page1_addr | tagging_mask))[0] = 1111;
+    ((int *)(page1_addr | tagging_mask))[0] = 1112;
     printf("Succeeded: page1 now contains: %d\n", ((int *)(page1_addr | tagging_mask))[0]);
     printf("----------------------\n");
+
+    printf("-----------------------\n");
+    printf("setting PKRU registers to disable write\n");
+    printf("This should have no effect with pkruOverride set as the PKRU registers are ignored.\n");
+    printf("Only thing that needs to be correct is the memory tag associated with the pkey of the page.\n");
+    status = pkey_set(pkey1, PKEY_DISABLE_WRITE); // allow all
+    if (status)
+        err(EXIT_FAILURE, "pkey_set 1");
+
+    printf("Reading page1 with tag (should succeed): %d\n", ((int *)(page1_addr | tagging_mask))[0]);
+    printf("Writing page1 with tag(should succeed)...\n");
+    ((int *)(page1_addr | tagging_mask))[0] = 1113;
+    printf("Succeeded: page1 now contains: %d\n", ((int *)(page1_addr | tagging_mask))[0]);
+    printf("----------------------\n");
+
+    
 
     printf("------------------------\n");
     printf("setting PKRU registers to allow access\n");
