@@ -95,9 +95,9 @@ int main(void) {
     status = pkey_set(pkey1, 0); // allow all
     if (status)
         err(EXIT_FAILURE, "pkey_set 2");
-    printf("Reading page1 without tag (should succeed):");
+    printf("Reading page1 with tag (should succeed):");
     printf("%d\n", ((int *)((page1_addr & UNSET_PKRU_override) | tagging_mask))[0]);
-    printf("Writing page1 without tag (should succeed)...\n");
+    printf("Writing page1 with tag (should succeed)...\n");
     ((int *)((page1_addr & UNSET_PKRU_override) | tagging_mask))[0] = 1114;
     printf("Succeeded: page1 now contains: %d\n", ((int *)((page1_addr & UNSET_PKRU_override) | tagging_mask))[0]);
     printf("----------------------\n");
