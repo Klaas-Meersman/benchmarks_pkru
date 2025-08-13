@@ -46,8 +46,7 @@ int main(void)
     };
 
     printf("Revoking access to the trusted zone...\n");
-    status = pkey_set(pkey_trusted_zone, 0);
-    //status = pkey_set(pkey_trusted_zone, PKEY_DISABLE_ACCESS | PKEY_DISABLE_WRITE);
+    status = pkey_set(pkey_trusted_zone, PKEY_DISABLE_ACCESS | PKEY_DISABLE_WRITE);
     if (status)
         err(EXIT_FAILURE, "pkey_set");
 
