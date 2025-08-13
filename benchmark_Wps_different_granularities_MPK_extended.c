@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
-#define TOTAL_WRITES (33554432L)  // 1 million writes
+#define TOTAL_WRITES (33554432L)  // 0.33 million writes
 
 int main(void)
 {
