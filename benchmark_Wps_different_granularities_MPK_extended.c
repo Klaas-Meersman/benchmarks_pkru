@@ -85,8 +85,8 @@ int main(void)
             // Perform exactly writes_grouped writes
             for (long w = 0; w < writes_grouped; w++)
             {
-                num = rand()%128; // Generate a random number
-                ((int *)((trusted_zone_addr | SET_PKRU_override) | tagging_mask))[num] = num + i;
+                int idx = numbers[w % 128];
+                ((int *)((trusted_zone_addr | SET_PKRU_override) | tagging_mask))[idx] = idx + i;
                 writes_done++;
             }
 

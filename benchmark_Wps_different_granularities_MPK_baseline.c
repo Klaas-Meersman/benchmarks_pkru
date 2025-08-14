@@ -7,8 +7,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
-//#define TOTAL_WRITES (33554432L)  // 0.33 billion writes
-#define TOTAL_WRITES (524288L)  // 0.5 million writes
+#define TOTAL_WRITES (33554432L)  // 0.33 million writes
 
 int main(void)
 {
@@ -88,8 +87,8 @@ int main(void)
             // Perform exactly writes_grouped writes
             for (long w = 0; w < writes_grouped; w++)
             {
-                num = rand()%128; // Generate a random number
-                ((int *)trusted_zone_addr)[num] = num + i; // Simulate write operation
+                int idx = numbers[w % 128];
+                ((int *)trusted_zone_addr)[idx] = idx + i; // Simulate write operation
                 writes_done++;
             }
 
