@@ -42,8 +42,24 @@ int main(void)
     uintptr_t SET_PKRU_override = (1UL << 60); //OR THIS
     uintptr_t tagging_mask = (pkey_trusted_zone << 56); // OR THIS
 
-    srand(time(0));//random number to avoid predictable patterns
-    int num;
+    int numbers[128] = {
+        89,21,23,99,45,67,12,34,
+        78,90,11,22,33,44,55,66,
+        77,88,100,101,102,103,104,105,
+        106,107,108,109,110,111,12,113,
+        114,115,88,117,118,119,120,121,
+        122,123,124,4,126,127,128,129,
+        130,131,8,133,134,135,136,137,
+        138,139,140,141,9,143,66,145,
+        146,23,148,149,150,151,152,153,
+        154,5,156,4,158,159,160,161,
+        162,163,164,165,166,167,168,169,
+        170,171,172,173,174,175,176,2,
+        12,179,180,244,182,183,184,185,
+        186,187,188,189,190,191,47,193,
+        23,195,196,10,198,199,200,126,
+        202,203,244,205,206,207,208,23
+    };
 
     printf("Revoking access to the trusted zone...\n");
     status = pkey_set(pkey_trusted_zone, PKEY_DISABLE_ACCESS | PKEY_DISABLE_WRITE);
@@ -52,7 +68,7 @@ int main(void)
 
     struct timespec start_time, end_time;
 
-    for (long writes_grouped = 2;
+    for (long writes_grouped = 1;
          writes_grouped <= TOTAL_WRITES / 2;
          writes_grouped *= 2)
     {
