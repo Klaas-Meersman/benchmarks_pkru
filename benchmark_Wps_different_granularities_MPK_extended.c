@@ -8,7 +8,7 @@
 #include <sys/mman.h>
 
 //#define TOTAL_WRITES (33554432L)  // 0.33 billion writes
-#define TOTAL_WRITES (524288L)  // 0.5 million writes
+#define TOTAL_WRITES (262144L)  // 0.26 million writes
 
 int main(void)
 {
