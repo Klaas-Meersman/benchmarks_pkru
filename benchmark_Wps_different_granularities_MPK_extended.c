@@ -42,9 +42,8 @@ int main(void)
     uintptr_t SET_PKRU_override = (1UL << 60); //OR THIS
     uintptr_t tagging_mask = (pkey_trusted_zone << 56); // OR THIS
 
-    int numbers[2] = {
-        89,21
-    };
+    srand(time(0));//random number to avoid predictable patterns
+    int num;
 
     printf("Revoking access to the trusted zone...\n");
     status = pkey_set(pkey_trusted_zone, PKEY_DISABLE_ACCESS | PKEY_DISABLE_WRITE);
@@ -70,8 +69,8 @@ int main(void)
             // Perform exactly writes_grouped writes
             for (long w = 0; w < writes_grouped; w++)
             {
-                int idx = numbers[w % 2];
-                ((int *)((trusted_zone_addr | SET_PKRU_override) | tagging_mask))[idx] = idx + i;
+                num = rand()%128; // Generate a random number
+                ((int *)((trusted_zone_addr | SET_PKRU_override) | tagging_mask))[num] = num + i;
                 writes_done++;
             }
 

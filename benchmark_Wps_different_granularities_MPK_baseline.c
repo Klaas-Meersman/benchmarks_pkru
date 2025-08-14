@@ -42,9 +42,8 @@ int main(void)
     uintptr_t trusted_zone_addr = (uintptr_t)trusted_zone;
 
 
-    int numbers[2] = {
-        89,21
-    };
+    srand(time(0));//random number to avoid predictable patterns
+    int num;
 
     printf("Revoking access to the trusted zone...\n");
     status = pkey_set(pkey_trusted_zone, PKEY_DISABLE_ACCESS | PKEY_DISABLE_WRITE);
@@ -73,8 +72,8 @@ int main(void)
             // Perform exactly writes_grouped writes
             for (long w = 0; w < writes_grouped; w++)
             {
-                int idx = numbers[w % 2];
-                ((int *)trusted_zone_addr)[idx] = idx + i; // Simulate write operation
+                num = rand()%128; // Generate a random number
+                ((int *)trusted_zone_addr)[num] = num + i; // Simulate write operation
                 writes_done++;
             }
 
