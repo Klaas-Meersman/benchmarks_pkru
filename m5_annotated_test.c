@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <gem5/m5ops.h>
+#include <m5_mmap.h>
 
 #define TOTAL_WRITES (2097152L) // 1 million writes
 
@@ -69,7 +70,8 @@ int main(void)
     printf("Benchmarking writes with writes_grouped: %ld\n", writes_grouped);
 
     clock_gettime(CLOCK_MONOTONIC, &start_time);
-    m5_work_begin(0, 0);
+    print("m5 annotation start\n");
+    m5_work_begin_addr(0, 0);
     long writes_done = 0;
     long wrpkru_done = 0;
 
@@ -90,7 +92,8 @@ int main(void)
         pkey_set(pkey_trusted_zone, PKEY_DISABLE_ACCESS | PKEY_DISABLE_WRITE);
         wrpkru_done++;
     }
-    m5_work_end(0, 0);
+    m5_work_end_addr(0, 0);
+    print("m5 annotation end\n");
     clock_gettime(CLOCK_MONOTONIC, &end_time);
 
     double elapsed_time_s =
