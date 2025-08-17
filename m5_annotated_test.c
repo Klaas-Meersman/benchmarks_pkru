@@ -65,54 +65,49 @@ int main(void)
         err(EXIT_FAILURE, "pkey_set");
 
     struct timespec start_time, end_time;
+    long writes_grouped = 1;
+    printf("Benchmarking writes with writes_grouped: %ld\n", writes_grouped);
 
-    for (long writes_grouped = 1;
-         writes_grouped <= TOTAL_WRITES / 2;
-         writes_grouped *= 2)
+    clock_gettime(CLOCK_MONOTONIC, &start_time);
+    m5_work_begin(0, 0);
+    long writes_done = 0;
+    long wrpkru_done = 0;
+
+    // Outer loop — for each batch
+    for (long i = 0; i < TOTAL_WRITES; i += writes_grouped)
     {
-        printf("Benchmarking writes with writes_grouped: %ld\n", writes_grouped);
+        // **Simulate granting access for this group**
+        pkey_set(pkey_trusted_zone, 0); // allow access
+        wrpkru_done++;
 
-        clock_gettime(CLOCK_MONOTONIC, &start_time);
-        m5_work_begin(0,0);
-        long writes_done = 0;
-        long wrpkru_done = 0;
+        // Perform exactly writes_grouped writes
 
-        // Outer loop — for each batch
-        for (long i = 0; i < TOTAL_WRITES; i += writes_grouped)
-        {
-            // **Simulate granting access for this group**
-            pkey_set(pkey_trusted_zone, 0); // allow access
-            wrpkru_done++;
+        int idx = numbers[1 % 128];
+        ((int *)trusted_zone_addr)[idx] = idx + i; // Simulate write operation
+        writes_done++;
 
-            // Perform exactly writes_grouped writes
-
-            int idx = numbers[1 % 128];
-            ((int *)trusted_zone_addr)[idx] = idx + i; // Simulate write operation
-            writes_done++;
-
-            // **Simulate revoking access**
-            pkey_set(pkey_trusted_zone, PKEY_DISABLE_ACCESS | PKEY_DISABLE_WRITE);
-            wrpkru_done++;
-        }
-        m5_work_end(0,0);
-        clock_gettime(CLOCK_MONOTONIC, &end_time);
-
-        double elapsed_time_s =
-            (end_time.tv_sec - start_time.tv_sec) +
-            (end_time.tv_nsec - start_time.tv_nsec) / 1e9;
-
-        double writes_per_sec = (double)TOTAL_WRITES / elapsed_time_s;
-
-        double elapsed_time_ms = (elapsed_time_s * 1000.0);
-
-        printf("Time taken: %.6f miliseconds\n", elapsed_time_ms);
-        printf("Writes per second: %.2f\n", writes_per_sec);
-        printf("Total writes done: %ld\n", writes_done);
-        printf("Total wrpkru done: %ld\n", wrpkru_done);
-        printf("wrpkru per ms: %.2f\n",
-               wrpkru_done / (elapsed_time_ms / 1000.0));
-        printf("--------------------------------------------------\n");
+        // **Simulate revoking access**
+        pkey_set(pkey_trusted_zone, PKEY_DISABLE_ACCESS | PKEY_DISABLE_WRITE);
+        wrpkru_done++;
     }
+    m5_work_end(0, 0);
+    clock_gettime(CLOCK_MONOTONIC, &end_time);
+
+    double elapsed_time_s =
+        (end_time.tv_sec - start_time.tv_sec) +
+        (end_time.tv_nsec - start_time.tv_nsec) / 1e9;
+
+    double writes_per_sec = (double)TOTAL_WRITES / elapsed_time_s;
+
+    double elapsed_time_ms = (elapsed_time_s * 1000.0);
+
+    printf("Time taken: %.6f miliseconds\n", elapsed_time_ms);
+    printf("Writes per second: %.2f\n", writes_per_sec);
+    printf("Total writes done: %ld\n", writes_done);
+    printf("Total wrpkru done: %ld\n", wrpkru_done);
+    printf("wrpkru per ms: %.2f\n",
+           wrpkru_done / (elapsed_time_ms / 1000.0));
+    printf("--------------------------------------------------\n");
 
     pkey_free(pkey_trusted_zone);
     munmap(trusted_zone, pagesize);
