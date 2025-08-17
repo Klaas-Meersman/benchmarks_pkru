@@ -73,7 +73,7 @@ int main(void)
         printf("Benchmarking writes with writes_grouped: %ld\n", writes_grouped);
 
         clock_gettime(CLOCK_MONOTONIC, &start_time);
-        m5_work_start();
+        m5_work_begin(0,0);
         long writes_done = 0;
         long wrpkru_done = 0;
 
@@ -94,7 +94,7 @@ int main(void)
             pkey_set(pkey_trusted_zone, PKEY_DISABLE_ACCESS | PKEY_DISABLE_WRITE);
             wrpkru_done++;
         }
-        m5_work_end();
+        m5_work_end(0,0);
         clock_gettime(CLOCK_MONOTONIC, &end_time);
 
         double elapsed_time_s =
