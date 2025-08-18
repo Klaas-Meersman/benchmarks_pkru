@@ -86,7 +86,6 @@ int main(void)
 
 
 
-
     long writes_done = 0;
     long wrpkru_done = 0;
 
@@ -98,10 +97,12 @@ int main(void)
         wrpkru_done++;
 
         // Perform exactly writes_grouped writes
-
-        int idx = numbers[1 % 128];
-        ((int *)trusted_zone_addr)[idx] = idx + i; // Simulate write operation
-        writes_done++;
+        for (long w = 0; w < writes_grouped; w++)
+        {
+            int idx = numbers[w % 128];
+            ((int *)trusted_zone_addr)[idx] = idx + i; // Simulate write operation
+            writes_done++;
+        }
 
         // **Simulate revoking access**
         pkey_set(pkey_trusted_zone, PKEY_DISABLE_ACCESS | PKEY_DISABLE_WRITE);
