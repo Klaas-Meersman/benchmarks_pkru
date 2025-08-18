@@ -15,6 +15,7 @@ int main(void)
 {
     m5op_addr = 0XFFFF0000;
     map_m5_mem();
+    
     int64_t pkey_trusted_zone;
     int status;
     size_t pagesize = getpagesize();
@@ -72,8 +73,20 @@ int main(void)
     printf("Benchmarking writes with writes_grouped: %ld\n", writes_grouped);
 
     clock_gettime(CLOCK_MONOTONIC, &start_time);
+
+
+
+
+
+///////////////////////////////////
     printf("m5 annotation start\n");
     m5_work_begin_addr(0, 0);
+
+///////////////////////////////////
+
+
+
+
     long writes_done = 0;
     long wrpkru_done = 0;
 
@@ -94,8 +107,17 @@ int main(void)
         pkey_set(pkey_trusted_zone, PKEY_DISABLE_ACCESS | PKEY_DISABLE_WRITE);
         wrpkru_done++;
     }
+
+
+//////////////////////////////////////
     m5_work_end_addr(0, 0);
     printf("m5 annotation end\n");
+///////////////////////////////////////
+
+
+
+
+
     clock_gettime(CLOCK_MONOTONIC, &end_time);
 
     double elapsed_time_s =
