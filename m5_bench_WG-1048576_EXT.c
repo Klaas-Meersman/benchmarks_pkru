@@ -6,15 +6,15 @@
 #include <err.h>
 #include <unistd.h>
 #include <sys/mman.h>
-#include <gem5/m5ops.h>
-#include <m5_mmap.h>
+// #include <gem5/m5ops.h>
+// #include <m5_mmap.h>
 
 #define TOTAL_WRITES (2097152L) // 1 million writes
 
 int main(void)
 {
-    m5op_addr = 0XFFFF0000;
-    map_m5_mem();
+    // m5op_addr = 0XFFFF0000;
+    // map_m5_mem();
 
     int64_t pkey_trusted_zone;
     int status;
@@ -43,55 +43,30 @@ int main(void)
     if (status == -1)
         err(EXIT_FAILURE, "pkey_mprotect");
 
-    uintptr_t trusted_zone_addr = (uintptr_t)trusted_zone;
-    uintptr_t SET_PKRU_override = (1UL << 60);          // OR THIS
-    uintptr_t tagging_mask = (pkey_trusted_zone << 56); // OR THIS
-
-    int numbers[128] = {
-        89, 21, 23, 99, 45, 67, 12, 34,
-        78, 90, 11, 22, 33, 44, 55, 66,
-        77, 88, 100, 101, 102, 103, 104, 105,
-        106, 107, 108, 109, 110, 111, 12, 113,
-        114, 115, 88, 117, 118, 119, 120, 121,
-        122, 123, 124, 4, 126, 127, 128, 129,
-        130, 131, 8, 133, 134, 135, 136, 137,
-        138, 139, 140, 141, 9, 143, 66, 145,
-        146, 23, 148, 149, 150, 151, 152, 153,
-        154, 5, 156, 4, 158, 159, 160, 161,
-        162, 163, 164, 165, 166, 167, 168, 169,
-        170, 171, 172, 173, 174, 175, 176, 2,
-        12, 179, 180, 244, 182, 183, 184, 185,
-        186, 187, 188, 189, 190, 191, 47, 193,
-        23, 195, 196, 10, 198, 199, 200, 126,
-        202, 203, 244, 205, 206, 207, 208, 23};
-
     printf("Revoking access to the trusted zone...\n");
     status = pkey_set(pkey_trusted_zone, PKEY_DISABLE_ACCESS | PKEY_DISABLE_WRITE);
     if (status)
         err(EXIT_FAILURE, "pkey_set");
 
     struct timespec start_time, end_time;
-    long writes_grouped = 1048576;
+    long writes_grouped = 1048576; ///////---------------------------------> CHANGE THIS
     printf("Benchmarking writes with writes_grouped: %ld\n", writes_grouped);
-
-    printf("Benchmarking writes with writes_grouped: %ld\n", writes_grouped);
-
-    clock_gettime(CLOCK_MONOTONIC, &start_time);
-
-
-
-
-
-
-///////////////////////////////////
-    printf("m5 annotation start\n");
-    m5_work_begin_addr(0, 0);
-//////////////////////////////////
-
-
 
     long writes_done = 0;
     long wrpkru_done = 0;
+    int idx = 0;
+    uintptr_t trusted_zone_addr = (uintptr_t)trusted_zone;
+    uintptr_t SET_PKRU_override = (1UL << 60);          // OR THIS
+    uintptr_t tagging_mask = (pkey_trusted_zone << 56); // OR THIS
+
+    ///////////////////////////////////
+    printf("m5 annotation start\n");
+    clock_gettime(CLOCK_MONOTONIC, &start_time);
+    // m5_work_begin_addr(0, 0);
+    //////////////////////////////////
+
+    int *trusted_zone_PKRU_override = (int *)(trusted_zone_addr | SET_PKRU_override);
+    uintptr_t override_addr = (uintptr_t)trusted_zone_PKRU_override;
 
     // Outer loop — for each batch
     for (long i = 0; i < TOTAL_WRITES; i += writes_grouped)
@@ -100,23 +75,22 @@ int main(void)
         // Perform exactly writes_grouped writes
         for (long w = 0; w < writes_grouped; w++)
         {
-            int idx = numbers[w % 128];
-            ((int *)((trusted_zone_addr | SET_PKRU_override) | tagging_mask))[idx] = idx + i; //access granted through PKRUoverride and pointer tag
-            writes_done++;
+            __asm__ volatile(
+                "or %[mask], %[base]\n\t"
+                "movl %[data], (%[base], %[index], 4)\n\t"
+                : [base] "+r"(override_addr)
+                : [mask] "r"(tagging_mask),
+                  [data] "r"(idx),      // 32-bit data
+                  [index] "r"((long)idx) // 64-bit index
+                : "memory");
         }
-
-        wrpkru_done++;
     }
 
-///////////////////////////////////
-    m5_work_end_addr(0, 0);
-    printf("m5 annotation end\n");
-//////////////////////////////////
-
-
-
-
+    ///////////////////////////////////
+    // m5_work_end_addr(0, 0);
     clock_gettime(CLOCK_MONOTONIC, &end_time);
+    printf("m5 annotation end\n");
+    //////////////////////////////////
 
     double elapsed_time_s =
         (end_time.tv_sec - start_time.tv_sec) +
@@ -137,6 +111,6 @@ int main(void)
     pkey_free(pkey_trusted_zone);
     munmap(trusted_zone, pagesize);
 
-    unmap_m5_mem();
+    // unmap_m5_mem();
     return 0;
 }
