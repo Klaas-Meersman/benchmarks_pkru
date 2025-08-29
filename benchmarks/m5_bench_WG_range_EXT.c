@@ -6,15 +6,15 @@
 #include <err.h>
 #include <unistd.h>
 #include <sys/mman.h>
-// #include <gem5/m5ops.h>
-// #include <m5_mmap.h>
+#include <gem5/m5ops.h>
+#include <m5_mmap.h>
 
 #define TOTAL_WRITES (2097152L) // 1 million writes
 
 int main(void)
 {
-    // m5op_addr = 0XFFFF0000;
-    // map_m5_mem();
+    m5op_addr = 0XFFFF0000;
+    map_m5_mem();
 
     int64_t pkey_trusted_zone;
     int status;
@@ -44,7 +44,7 @@ int main(void)
         err(EXIT_FAILURE, "pkey_mprotect");
 
     printf("Revoking access to the trusted zone...\n");
-    status = pkey_set(pkey_trusted_zone, 0);
+    status = pkey_set(pkey_trusted_zone, PKEY_DISABLE_ACCESS | PKEY_DISABLE_WRITE);
     if (status)
         err(EXIT_FAILURE, "pkey_set");
 
@@ -55,8 +55,7 @@ int main(void)
     //long wrpkru_done = 0;
     int idx = 0;
     uintptr_t trusted_zone_addr = (uintptr_t)trusted_zone;
-    uintptr_t SET_PKRU_override = (0UL << 60); // OR THIS
-    pkey_trusted_zone = 0;
+    uintptr_t SET_PKRU_override = (1UL << 60);          // OR THIS
     uintptr_t tagging_mask = (pkey_trusted_zone << 56); // OR THIS
 
     for (long writes_grouped = 1;
@@ -68,7 +67,7 @@ int main(void)
         ///////////////////////////////////
         printf("m5 annotation start\n");
         clock_gettime(CLOCK_MONOTONIC, &start_time);
-        // m5_work_begin_addr(0, 0);
+        m5_work_begin_addr(0, 0);
         //////////////////////////////////
 
         int *trusted_zone_PKRU_override = (int *)(trusted_zone_addr | SET_PKRU_override);
@@ -93,7 +92,7 @@ int main(void)
         }
 
         ///////////////////////////////////
-        // m5_work_end_addr(0, 0);
+        m5_work_end_addr(0, 0);
         clock_gettime(CLOCK_MONOTONIC, &end_time);
         printf("m5 annotation end\n");
         //////////////////////////////////
@@ -117,6 +116,6 @@ int main(void)
     pkey_free(pkey_trusted_zone);
     munmap(trusted_zone, pagesize);
 
-    // unmap_m5_mem();
+    unmap_m5_mem();
     return 0;
 }
